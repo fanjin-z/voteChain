@@ -2,7 +2,7 @@ import time
 import crypto
 import utils
 
-LEADING_ZEROS = 1
+LEADING_ZEROS = 2
 
 
 class Block:
@@ -21,11 +21,11 @@ class Block:
 
     def build_merkle_tree(self):
         n = 1
-        while(n < len(transactions)):   n *= 2
+        while(n < len(self.transactions)):   n *= 2
 
         merkle = [b'\x00'] * (2*n)
-        for i in range(len(transactions)):
-            data = bytes(transactions[i]) + transactions[i].signature
+        for i in range(len(self.transactions)):
+            data = bytes(self.transactions[i]) + self.transactions[i].signature
             merkle[n+i] = crypto.dhash(data)
 
         for i in reversed(range(1, n)):
@@ -40,10 +40,12 @@ class Block:
 
         while(True):
             nonce_b = nonce.to_bytes(16, byteorder = 'big')
-            res = dhash(data + nonce_b)
+            res = crypto.dhash(data + nonce_b)
             if int.from_bytes(res[:LEADING_ZEROS], byteorder = 'big') == 0:
                 self.nonce = nonce
+                print(nonce)
                 return
+            nonce += 1
 
 
     def signing(self):
@@ -53,7 +55,7 @@ class Block:
 
     def __bytes__(self):
         data = self.miner
-        for t in transactions:  data += bytes(t) + t.signature
-        data += str(timestamp).encode('utf-8')
-        for m in merkle_tree:   data += m
+        for t in self.transactions:  data += bytes(t) + t.signature
+        data += str(self.timestamp).encode('utf-8')
+        for m in self.merkle_tree:   data += m
         return data
