@@ -1,22 +1,30 @@
 import time
 import crypto
 import utils
+from transaction import Transaction
 
 LEADING_ZEROS = 2
 
 
 class Block:
 
-    def __init__(self, miner, key):
+    def __init__(self, miner, key, prev_block=None):
         self.miner = miner
         self.key = key
+
+        self.prev_block = prev_block
+        try:
+            self.prev_hash = prev_hash.merkle_tree[1]
+        except:
+            self.prev_hash = b'\x00'
 
         self.transactions = []
         self.timestamp = utils.getTimestamp()
 
 
     def add_transaction(self, transaction):
-        self.transactions.append(transaction)
+        if isinstance(transaction, Transaction):
+            self.transactions.append(transaction)
 
 
     def build_merkle_tree(self):
@@ -55,6 +63,7 @@ class Block:
 
     def __bytes__(self):
         data = self.miner
+        data += self.prev_hash
         for t in self.transactions:  data += bytes(t) + t.signature
         data += str(self.timestamp).encode('utf-8')
         for m in self.merkle_tree:   data += m
