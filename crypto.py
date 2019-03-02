@@ -120,17 +120,23 @@ def genCSR(subject, key):
     return csr
 
 
-def saveCSR(csr, filename):
-    with open(filename, "wb") as f:
-        f.write(csr.public_bytes(serialization.Encoding.PEM))
+# def saveCSR(csr, filename):
+#     with open(filename, "wb") as f:
+#         f.write(csr.public_bytes(serialization.Encoding.PEM))
+#
+#
+# def loadCSR(filename):
+#     with open(filename, "rb") as f:
+#         csr = x509.load_pem_x509_csr(f.read, default_backend())
+#     return csr
 
 
 import datetime
-def genCert(subject, issuer, key, expired_in):
+def genCert(csr, issuer, key, expired_in):
     cert = x509.CertificateBuilder().\
-        subject_name(subject).\
+        subject_name(csr.subject).\
         issuer_name(issuer).\
-        public_key(key.public_key()).\
+        public_key(csr.public_key()).\
         serial_number(x509.random_serial_number()).\
         not_valid_before(datetime.datetime.utcnow()).\
         not_valid_after(datetime.datetime.utcnow() + datetime.timedelta(days=expired_in)).\
