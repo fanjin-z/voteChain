@@ -1,23 +1,31 @@
 import time
+import crypto
 
 class Transaction:
 
-    def __init__(self, sender):
+    def __init__(self, sender, key):
         self.sender = sender
+        self.key = key
+
         self.send_to = []
         self.timestamp = time.time()
         self.tip = 0
 
 
-    def add_receiver(receiver, amount):
+    def add_receiver(self, receiver, amount):
         self.send_to.append((receiver, amount))
 
 
-    def add_tip(amount):
+    def set_tip(self, amount):
         if amount < 0:
             return
         else:
             self.tip = amount
 
-    def sign(self):
-        pass
+    def signing(self):
+        msg = bytes(self)
+        self.signature = crypto.signing(self.key, msg)
+
+    def __bytes__(self):
+        msg = str(self.sender) + str(self.send_to) + str(self.timestamp) + str(self.tip)
+        return msg.encode('utf-8')
