@@ -1,5 +1,6 @@
 import time
 import crypto
+import utils
 
 class Transaction:
 
@@ -8,7 +9,7 @@ class Transaction:
         self.key = key
 
         self.send_to = []
-        self.timestamp = time.time()
+        self.timestamp = utils.getTimestamp()
         self.tip = 0
 
 
