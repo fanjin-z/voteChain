@@ -27,5 +27,5 @@ class Transaction:
         self.signature = crypto.signing(self.key, msg)
 
     def __bytes__(self):
-        msg = str(self.sender) + str(self.send_to) + str(self.timestamp) + str(self.tip)
-        return msg.encode('utf-8')
+        msg = str(self.send_to) + str(self.timestamp) + str(self.tip)
+        return self.sender + msg.encode('utf-8')
