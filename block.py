@@ -27,7 +27,7 @@ class Block:
             self.transactions.append(transaction)
 
 
-    def build_merkle_tree(self):
+    def build_merkle_tree(self, isreturn=False):
         n = 1
         while(n < len(self.transactions)):   n *= 2
 
@@ -39,10 +39,13 @@ class Block:
         for i in reversed(range(1, n)):
             merkle[i] = crypto.dhash(merkle[2*i] + merkle[2*i+1])
 
-        self.merkle_tree = merkle
+        if isreturn:
+            return merkle
+        else:
+            self.merkle_tree = merkle
 
 
-    def proofOfWork(self):
+    def proofOfWork(self, isreturn=False):
         data = bytes(self)
         nonce = 0
 
@@ -50,9 +53,12 @@ class Block:
             nonce_b = nonce.to_bytes(16, byteorder = 'big')
             res = crypto.dhash(data + nonce_b)
             if int.from_bytes(res[:LEADING_ZEROS], byteorder = 'big') == 0:
-                self.nonce = nonce
-                print(nonce)
-                return
+                if isreturn:
+                    return nonce
+                else:
+                    self.nonce = nonce
+                    # print(nonce)
+                    return
             nonce += 1
 
 
