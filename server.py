@@ -131,13 +131,16 @@ def close_db(error):
         g.sqlite_db.close()
 
 
-@app.route('/lookup-cert')
+@app.route('/lookup-cert', methods=['GET'])
 def show_entries():
     db = get_db()
     cur = db.execute('select addr, cert from entries')
+    print(cur)
     entries = cur.fetchall()
+    print(entries)
+
     # return render_template('show_entries.html', entries=entries)
-    return entries
+    return 'end'
 
 
 def verifyID(info):
@@ -156,12 +159,13 @@ def handleCertRequest():
         return
 
     addr = crypto.genAddr(csr.public_key())
+    addr_s = addr.decode(encoding='latin-1')
     cert = crypto.genCert(csr, issuer, key, expired_in=10)
     cert_pem = crypto.certToBytes(csr)
 
 
     db = get_db()
-    db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert_pem])
+    db.execute('insert into entries (addr, cert) values (?, ?)', [addr_s, cert_pem])
     db.commit()
     flash('New Certificate was successfully posted')
     return 'end'

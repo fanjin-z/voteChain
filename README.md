@@ -11,6 +11,7 @@ pip3 install --editable flaskr
 ## Usage
 ```bash
 export FLASK_APP=server.py
+flask initdb
 flask run
 ```
 
