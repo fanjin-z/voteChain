@@ -13,8 +13,6 @@ def certReq(country, state, city, commonName, info='I;m a Legit voter'):
     r = requests.post(SERVER_URL + 'certReq', data=payload)
     print(r.status_code)
 
-# r = requests.get(SERVER_URL)
-# certReq('US', 'Calif', 'SD', 'sunGod')
 
 def lookupCert():
     r = requests.get(SERVER_URL + 'lookup-cert')

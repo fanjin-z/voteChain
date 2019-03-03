@@ -1,13 +1,13 @@
 <!doctype html>
 <title>Show Certificates</title>
 <div class=page>
-  <h1>Flaskr</h1>
+  <h1>List Certificates</h1>
   {% block body %}
   <ul class=entries>
   {% for entry in entries %}
-    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+    <li><h3>{{ entry.addr }}</h3>{{ entry.cert |safe }}
   {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><em>No entries here so far</em>
   {% endfor %}
   </ul>
 {% endblock %}
