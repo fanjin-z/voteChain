@@ -4,7 +4,7 @@ import utils
 
 class Transaction:
 
-    def __init__(self, sender, key):
+    def __init__(self, sender):
         self.sender = sender
         self.key = key
 
@@ -23,7 +23,7 @@ class Transaction:
         else:
             self.tip = amount
 
-    def signing(self):
+    def signing(self, key):
         msg = bytes(self)
         self.signature = crypto.signing(self.key, msg)
 

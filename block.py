@@ -8,9 +8,8 @@ LEADING_ZEROS = 2
 
 class Block:
 
-    def __init__(self, miner, key, prev_block=None):
+    def __init__(self, miner, prev_block=None):
         self.miner = miner
-        self.key = key
 
         self.prev_block = prev_block
         try:
@@ -62,9 +61,9 @@ class Block:
             nonce += 1
 
 
-    def signing(self):
+    def signing(self, key):
         msg = bytes(self) + self.nonce.to_bytes(16, byteorder = 'big')
-        self.signature = crypto.signing(self.key, msg)
+        self.signature = crypto.signing(key, msg)
 
 
     def __bytes__(self):

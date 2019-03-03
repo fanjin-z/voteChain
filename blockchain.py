@@ -63,10 +63,10 @@ def new_transaction():
     if not all(k in values for k in required):
         return 'Missing values', 400
 
-    t = Transaction(values['sender'], key)
+    t = Transaction(values['sender'])
     t.set_tip(0.5)
     t.add_receiver(values['sender'], values['voteGroup'])
-    t.signing()
+    t.signing(key)
 
     block.add_transaction(t)
     print("Block: ", block.transactions)
@@ -92,7 +92,7 @@ def vote_summary():
             else:
                 dict_votes[tr.send_to[0][1]] += 1
         block_iter = block_iter.prev_block
-    
+
     return jsonify(dict_votes), 200
 
 if __name__ == '__main__':
