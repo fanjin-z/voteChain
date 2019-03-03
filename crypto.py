@@ -93,10 +93,11 @@ def verification(pubkey, msg, signature):
     return True
 
 
+import hashlib
 def sha256(msg):
-    digest = hashes.Hash(hashes.SHA256(), backend=default_backend())
-    digest.update(msg)
-    return digest.finalize()    # Encoding 'ISO-8859-1' or 'latin_1'
+    m = hashlib.sha256()
+    m.update(msg)
+    return m.digest()    # Encoding 'ISO-8859-1' or 'latin_1'
 
 
 def dhash(msg):

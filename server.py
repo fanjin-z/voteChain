@@ -146,7 +146,6 @@ def verifyID(info):
 
 issuer = crypto.genNameForm('US', 'Calif', 'San Diego', 'UCSD', 'Tritons')
 
-from cryptography.hazmat.primitives.asymmetric import rsa
 @app.route('/certReq', methods=['POST'])
 def handleCertRequest():
     info =  request.form.get('info')
@@ -156,13 +155,17 @@ def handleCertRequest():
     if not verifyID(info):
         return
 
-    # addr = crypto.genAddr(csr.public_key())
-    # crypto.genCert(csr, issuer, key, expired_in=10)
-    # db = get_db()
-    # db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert])
-    # db.commit()
-    # flash('New Certificate was successfully posted')
+    addr = crypto.genAddr(csr.public_key())
+    cert = crypto.genCert(csr, issuer, key, expired_in=10)
+    cert_pem = crypto.certToBytes(csr)
+
+
+    db = get_db()
+    db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert_pem])
+    db.commit()
+    flash('New Certificate was successfully posted')
     return 'end'
+
 
 
 @app.route('/')
