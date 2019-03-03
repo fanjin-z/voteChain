@@ -10,10 +10,11 @@ class Blockchain:
         self.last_block = last_block
 
 
-    def verify(self, public_key):
+    def verify(self):
         block = self.last_block
         while(isinstance(block, Block)):
-            if verification(public_key, bytes(block), block.signature):
+            pubkey = utils.lookupPubkey(block.miner)
+            if verification(pubkey, bytes(block), block.signature):
                 return False
             if build_merkle_tree(True)[1] != block.merkle_tree[1]:
                 return False
