@@ -131,6 +131,11 @@ def close_db(error):
         g.sqlite_db.close()
 
 
+@app.route('/length', methods=['GET'])
+def showLength():
+    return str(len(blockchain)), 200
+
+
 @app.route('/lookup-cert', methods=['GET'])
 def show_entries():
     db = get_db()
