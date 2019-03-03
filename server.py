@@ -1,45 +1,14 @@
+import os
+import sqlite3
+from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
+
+from blockchain import Blockchain
 from block import Block
 from transaction import Transaction
+
 import crypto
 import utils
-from cryptography.hazmat.primitives.asymmetric import rsa
-from flask import Flask, jsonify, request
 
-class Blockchain:
-
-    def __init__(self, last_block = None):
-        self.last_block = last_block
-
-
-    def set_last_block(self, last_block):
-        self.last_block = last_block
-
-
-    def verify(self):
-        block = self.last_block
-        while(isinstance(block, Block)):
-            pubkey = utils.lookupPubkey(block.miner)
-            if verification(pubkey, bytes(block), block.signature):
-                return False
-            if build_merkle_tree(True)[1] != block.merkle_tree[1]:
-                return False
-
-            data = bytes(block)
-            nonce_b = nonce.to_bytes(16, byteorder = 'big')
-            res = crypto.dhash(data + nonce_b)
-            if int.from_bytes(res[:LEADING_ZEROS], byteorder = 'big') != 0:
-                return False
-
-        return True
-
-
-    def __len__(self):
-        n = 0
-        block = self.last_block
-        while(isinstance(block, Block)):
-            n += 1
-            block = block.prev_block
-        return n
 
 # Instantiate the Node
 app = Flask(__name__)
@@ -49,11 +18,21 @@ blockchain = Blockchain()
 
 msg = b'hello, world'
 key = crypto.loadKey('key.pem')
-isinstance(key, rsa.RSAPrivateKey)
 signature = crypto.signing(key, msg)
 crypto.verification(key.public_key(), msg, signature)
 addr = crypto.genAddr(key.public_key())
-block = Block(addr, key)
+
+block = Block(addr)
+
+# Load default config and override config from an environment variable
+app.config.update(dict(
+    DATABASE=os.path.join(app.root_path, 'server.db'),
+    DEBUG=True,
+    SECRET_KEY='development key',
+    USERNAME='admin',
+    PASSWORD='default'
+))
+app.config.from_envvar('FLASKR_SETTINGS', silent=True)
 
 @app.route('/mine', methods=['GET'])
 def mine():
@@ -112,6 +91,66 @@ def vote_summary():
         block_iter = block_iter.prev_block
 
     return jsonify(dict_votes), 200
+
+
+def connect_db():
+    """Connects to the specific database."""
+    rv = sqlite3.connect(app.config['DATABASE'])
+    rv.row_factory = sqlite3.Row
+    return rv
+
+
+def init_db():
+    """Initializes the database."""
+    db = get_db()
+    with app.open_resource('flaskr/flaskr/schema.sql', mode='r') as f:
+        db.cursor().executescript(f.read())
+    db.commit()
+
+
+@app.cli.command('initdb')
+def initdb_command():
+    """Creates the database tables."""
+    init_db()
+    print('Initialized the database.')
+
+
+def get_db():
+    """Opens a new database connection if there is none yet for the
+    current application context.
+    """
+    if not hasattr(g, 'sqlite_db'):
+        g.sqlite_db = connect_db()
+    return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+    """Closes the database again at the end of the request."""
+    if hasattr(g, 'sqlite_db'):
+        g.sqlite_db.close()
+
+
+@app.route('/lookup-cert')
+def show_entries():
+    db = get_db()
+    cur = db.execute('select addr, cert from entries')
+    entries = cur.fetchall()
+    # return render_template('show_entries.html', entries=entries)
+    return entries
+
+
+@app.route('/add-cert', methods=['POST'])
+def add_entry():
+    # if not session.get('logged_in'):
+    #     abort(401)
+    db = get_db()
+    db.execute('insert into entries (addr, cert) values (?, ?)',
+                 [request.form['addr'], request.form['cert']])
+    db.commit()
+    flash('New entry was successfully posted')
+    # return redirect(url_for('show_entries'))
+
 
 if __name__ == '__main__':
     from argparse import ArgumentParser

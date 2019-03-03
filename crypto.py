@@ -35,7 +35,10 @@ def keyBytes(key):
 def loadKey(filename):
     with open(filename, 'rb') as f:
         key = serialization.load_pem_private_key(f.read(), password=None, backend=default_backend())
-    return key
+    if isinstance(key, rsa.RSAPrivateKey):
+        return key
+    else:
+        raise TypeError('Not a RSA private key.')
 
 
 def savePubkey(pubkey, filename):
@@ -56,7 +59,10 @@ def pubkeyBytes(pubkey):
 def loadPubkey(filename):
     with open(filename, 'rb') as f:
         pubkey = serialization.load_pem_public_key(f.read(), backend=default_backend())
-    return pubkey
+    if isinstance(pubkey, rsa.RSAPublicKey):
+        return pubkey
+    else:
+        raise TypeError('Not a RSA public key.')
 
 
 def signing(key, msg):
