@@ -1,4 +1,4 @@
-import os
+import os, sys
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash, jsonify
 
@@ -103,7 +103,7 @@ def connect_db():
 def init_db():
     """Initializes the database."""
     db = get_db()
-    with app.open_resource('flaskr/flaskr/schema.sql', mode='r') as f:
+    with app.open_resource('schema.sql', mode='r') as f:
         db.cursor().executescript(f.read())
     db.commit()
 
@@ -140,24 +140,34 @@ def show_entries():
     return entries
 
 
+def verifyID(info):
+    return True
+
 
 issuer = crypto.genNameForm('US', 'Calif', 'San Diego', 'UCSD', 'Tritons')
 
+from cryptography.hazmat.primitives.asymmetric import rsa
 @app.route('/certReq', methods=['POST'])
 def handleCertRequest():
-    csr_pem = request.data['csr']
-    csr = CSRfromBytes(csr_pem)
-    info =  request.data['info']
+    info =  request.form.get('info')
+    csr_pem = request.form.get('csr').encode('ascii')
+    csr = crypto.CSRfromBytes(csr_pem)
 
-    if not utils.verifyID(info):
+    if not verifyID(info):
         return
 
-    addr = crypto.genAddr(csr.public_key())
-    crypto.genCert(csr, issuer, key, expired_in=10)
-    db = get_db()
-    db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert])
-    db.commit()
-    flash('New Certificate was successfully posted')
+    # addr = crypto.genAddr(csr.public_key())
+    # crypto.genCert(csr, issuer, key, expired_in=10)
+    # db = get_db()
+    # db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert])
+    # db.commit()
+    # flash('New Certificate was successfully posted')
+    return 'end'
+
+
+@app.route('/')
+def hello_world():
+    return 'Hello, World!'
 
 
 
