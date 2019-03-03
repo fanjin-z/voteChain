@@ -135,12 +135,9 @@ def close_db(error):
 def show_entries():
     db = get_db()
     cur = db.execute('select addr, cert from entries')
-    print(cur)
     entries = cur.fetchall()
-    print(entries)
-
-    # return render_template('show_entries.html', entries=entries)
-    return 'end'
+    # print(entries)
+    return render_template('show_entries.html', entries=entries)
 
 
 def verifyID(info):
@@ -168,22 +165,9 @@ def handleCertRequest():
     db.execute('insert into entries (addr, cert) values (?, ?)', [addr_s, cert_pem])
     db.commit()
     flash('New Certificate was successfully posted')
-    return 'end'
-
+    return 'OK'
 
 
 @app.route('/')
 def hello_world():
     return 'Hello, World!'
-
-
-
-if __name__ == '__main__':
-    from argparse import ArgumentParser
-
-    parser = ArgumentParser()
-    parser.add_argument('-p', '--port', default=5000, type=int, help='port to listen on')
-    args = parser.parse_args()
-    port = args.port
-
-    app.run(host='0.0.0.0', port=port)

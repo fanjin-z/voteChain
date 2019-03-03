@@ -1,5 +1,5 @@
 drop table if exists entries;
 create table entries (
-  addr BLOB primary key,
-  cert BLOB not null
+  addr TEXT primary key,
+  cert TEXT not null
 );
