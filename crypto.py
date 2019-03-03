@@ -109,7 +109,6 @@ def genAddr(pubkey):
 
 
 def genNameForm(country, state, city, orgName, commonName):
-
     nameForm = x509.Name([x509.NameAttribute(NameOID.COUNTRY_NAME, country),
         x509.NameAttribute(NameOID.STATE_OR_PROVINCE_NAME, state),
         x509.NameAttribute(NameOID.LOCALITY_NAME, city),
@@ -126,15 +125,23 @@ def genCSR(subject, key):
     return csr
 
 
-# def saveCSR(csr, filename):
-#     with open(filename, "wb") as f:
-#         f.write(csr.public_bytes(serialization.Encoding.PEM))
-#
-#
-# def loadCSR(filename):
-#     with open(filename, "rb") as f:
-#         csr = x509.load_pem_x509_csr(f.read, default_backend())
-#     return csr
+def saveCSR(csr, filename):
+    with open(filename, "wb") as f:
+        f.write(csr.public_bytes(serialization.Encoding.PEM))
+
+
+def CSRtoBytes(csr):
+    return csr.public_bytes(serialization.Encoding.PEM)
+
+
+def loadCSR(filename):
+    with open(filename, "rb") as f:
+        csr = x509.load_pem_x509_csr(f.read(), default_backend())
+    return csr
+
+
+def CSRfromBytes(pem_data):
+    return x509.load_pem_x509_csr(pem_data, default_backend())
 
 
 import datetime
@@ -155,7 +162,15 @@ def saveCert(cert, filename):
         f.write(cert.public_bytes(serialization.Encoding.PEM))
 
 
+def certToBytes(cert):
+    return cert.public_bytes(serialization.Encoding.PEM)
+
+
 def loadCert(filename):
     with open(filename, 'rb') as f:
         cert = x509.load_pem_x509_certificate(f.read(), default_backend())
     return cert
+
+
+def certFromBytes(pem_data):
+    return x509.load_pem_x509_certificate(pem_data.read(), default_backend())

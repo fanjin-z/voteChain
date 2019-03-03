@@ -7,3 +7,7 @@ def getTimestamp():
 
 def lookupPubkey(addr):
     pass
+
+
+def verifyID(info):
+    return True

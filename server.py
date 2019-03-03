@@ -140,16 +140,25 @@ def show_entries():
     return entries
 
 
-@app.route('/add-cert', methods=['POST'])
-def add_entry():
-    # if not session.get('logged_in'):
-    #     abort(401)
+
+issuer = crypto.genNameForm('US', 'Calif', 'San Diego', 'UCSD', 'Tritons')
+
+@app.route('/certReq', methods=['POST'])
+def handleCertRequest():
+    csr_pem = request.data['csr']
+    csr = CSRfromBytes(csr_pem)
+    info =  request.data['info']
+
+    if not utils.verifyID(info):
+        return
+
+    addr = crypto.genAddr(csr.public_key())
+    crypto.genCert(csr, issuer, key, expired_in=10)
     db = get_db()
-    db.execute('insert into entries (addr, cert) values (?, ?)',
-                 [request.form['addr'], request.form['cert']])
+    db.execute('insert into entries (addr, cert) values (?, ?)', [addr, cert])
     db.commit()
-    flash('New entry was successfully posted')
-    # return redirect(url_for('show_entries'))
+    flash('New Certificate was successfully posted')
+
 
 
 if __name__ == '__main__':

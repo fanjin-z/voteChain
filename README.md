@@ -1,5 +1,5 @@
 # voteChain
-**An anti-fraud blockchain voting system**
+*An anti-fraud blockchain voting system*
 
 ## Installation
 ```bash
